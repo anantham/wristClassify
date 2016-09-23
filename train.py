@@ -4,8 +4,10 @@ import numpy as np
 import scipy.stats as stats
 from statsmodels.robust.scale import mad as mediad
 from itertools import izip
+from sklearn.cross_validation import train_test_split
+from sklearn.naive_bayes import GaussianNB
 
-def read_data():
+def read_raw_data():
 	'''
 	Read all the text files in the datasets folder
 	concatenate them into one dataframe
@@ -39,6 +41,9 @@ def split_activities(data_frame):
 	return stationary_data, walking_data, running_data
 
 def get_parameters(data):
+	'''
+	perform aggregates on sets of 200
+	'''
 	activity = data['Activity']
 	func_dict = {
 		'min': np.min,
@@ -66,11 +71,25 @@ def get_parameters(data):
 	stats_data.columns = [''.join(col).strip() for col in stats_data.columns.values]
 	stats_data = pd.concat([stats_data, correlations, activity[:len(stats_data)]], axis=1)
 	return stats_data
-		
 
+def save_parameters(filename):
+	total_data = read_raw_data()
+	stand, walk, run = split_activities(total_data)
+	stand = get_parameters(stand)
+	walk = get_parameters(walk)
+	run = get_parameters(run)
+	train_data = pd.concat([stand, walk, run])
+	train_data.to_csv(filename)		
 
-
-
-
-
-
+def trainNB(filename):
+	NBLearner = GaussianNB()
+	total_data = pd.read_csv(filename)
+	print "Data reading complete"
+	Y = np.array(train_data['Activity'])
+	X = np.array(train_data.drop(['Activity'], axis=1))
+	X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.33, random_state=42)
+	NBLearner.fit(X_train, Y_train)
+	print "Training complete"
+	accuracy = [1 if x else 0 for x in NBLearner.predict(X_test) == Y_test]
+	print "Accuracy: " + str(float(sum(accuracy))/len(accuracy) * 100) + "%"
+	return NBLearner
