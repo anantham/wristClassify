@@ -43,6 +43,7 @@ void getAres() {
 }
 
 
+/*
 void readAccelData(int16_t * destination) {
     uint8_t rawData[6];  // x/y/z accel register data stored here
     readBytes(MPU9150_ADDRESS, ACCEL_XOUT_H, 6, &rawData[0]);  // Read the six raw data registers into data array
@@ -62,6 +63,7 @@ void readGyroData(int16_t * destination) {
     destination[1] = ((int16_t)rawData[2] << 8) | rawData[3] ;  
     destination[2] = ((int16_t)rawData[4] << 8) | rawData[5] ; 
 }
+*/
 
 void readMagData(int16_t * destination) {
     uint8_t rawData[6];  
@@ -94,13 +96,16 @@ void initAK8975A(float * destination) {
     destination[2] =  (float)(rawData[2] - 128)/256. + 1.; 
 }
 
+/*
 int16_t readTempData() {
     uint8_t rawData[2];  // x/y/z gyro register data stored here
     readBytes(MPU9150_ADDRESS, TEMP_OUT_H, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array 
     return ((int16_t)rawData[0] << 8) | rawData[1] ;  // Turn the MSB and LSB into a 16-bit value
 }
+*/
 
-    // Configure the motion detection control for low power accelerometer mode
+/*
+// Configure the motion detection control for low power accelerometer mode
 void LowPowerAccelOnlyMPU6050() {
 
     // The sensor has a high-pass filter necessary to invoke to allow the sensor motion detection algorithms work properly
@@ -150,7 +155,9 @@ void LowPowerAccelOnlyMPU6050() {
     writeByte(MPU9150_ADDRESS, PWR_MGMT_1, c |  0x20); // Set cycle bit 5 to begin low power accelerometer motion interrupts
 }
 
+*/
 
+/*
 void initMPU9150() {  
     // wake up device
     writeByte(MPU9150_ADDRESS, PWR_MGMT_1, 0x00); // Clear sleep mode bit (6), enable all sensors 
@@ -182,38 +189,40 @@ void initMPU9150() {
     writeByte(MPU9150_ADDRESS, ACCEL_CONFIG, c & ~0x18); // Clear AFS bits [4:3]
     writeByte(MPU9150_ADDRESS, ACCEL_CONFIG, c | Ascale << 3); // Set full scale range for the accelerometer 
 
-    /*
+    
     // Configure Magnetometer for FIFO
     // Initialize AK8975A for write
-    writeRegister(I2C_SLV1_ADDR, 0x0C);  // Write address of AK8975A
-    writeRegister(I2C_SLV1_REG, 0x0A);   // Register from within the AK8975 to which to write
-    writeRegister(I2C_SLV1_DO, 0x01);    // Register that holds output data written into Slave 1 when in write mode
-    writeRegister(I2C_SLV1_CTRL, 0x81);  // Enable Slave 1
+    // writeRegister(I2C_SLV1_ADDR, 0x0C);  // Write address of AK8975A
+    // writeRegister(I2C_SLV1_REG, 0x0A);   // Register from within the AK8975 to which to write
+    // writeRegister(I2C_SLV1_DO, 0x01);    // Register that holds output data written into Slave 1 when in write mode
+    // writeRegister(I2C_SLV1_CTRL, 0x81);  // Enable Slave 1
 
     // Set up auxilliary communication with AK8975A for FIFO read
-    writeRegister(I2C_SLV0_ADDR, 0x8C); // Enable and read address (0x0C) of the AK8975A
-    writeRegister(I2C_SLV0_REG, 0x03);  // Register within AK8975A from which to start data read
-    writeRegister(I2C_SLV0_CTRL, 0x86); // Read six bytes and swap bytes
+    // writeRegister(I2C_SLV0_ADDR, 0x8C); // Enable and read address (0x0C) of the AK8975A
+    // writeRegister(I2C_SLV0_REG, 0x03);  // Register within AK8975A from which to start data read
+    // writeRegister(I2C_SLV0_CTRL, 0x86); // Read six bytes and swap bytes
 
     // Configure FIFO
-    writeRegister(INT_ENABLE, 0x00); // Disable all interrupts
-    writeRegister(FIFO_EN, 0x00);    // Disable FIFO
-    writeRegister(USER_CTRL, 0x02);  // Reset I2C master and FIFO and DMP
-    writeRegister(USER_CTRL, 0x00);  // Disable FIFO 
-    delay(100);
+    // writeRegister(INT_ENABLE, 0x00); // Disable all interrupts
+    // writeRegister(FIFO_EN, 0x00);    // Disable FIFO
+    // writeRegister(USER_CTRL, 0x02);  // Reset I2C master and FIFO and DMP
+    // writeRegister(USER_CTRL, 0x00);  // Disable FIFO 
+    // delay(100);
     // writeRegister(FIFO_EN, 0xF9); // Enable all sensors for FIFO 
     // writeRegister(I2C_MST_DELAY_CTRL, 0x80); // Enable delay of external sensor data until all data registers have been read
-    */ 
+    
 
     // Configure Interrupts and Bypass Enable
     // Set interrupt pin active high, push-pull, and clear on read of INT_STATUS, enable I2C_BYPASS_EN so additional chips 
     // can join the I2C bus and all can be controlled by the Arduino as master
     writeByte(MPU9150_ADDRESS, INT_PIN_CFG, 0x22);    
-    writeByte(MPU9150_ADDRESS, INT_ENABLE, 0x01);  // Enable data ready (bit 0) interrupt
+    writeByte(MPU9150_ADDRESS, INT_ENABLE, 0x01);  
 }
+*/
 
-    // Function which accumulates gyro and accelerometer data after device initialization. It calculates the average
-    // of the at-rest readings and then loads the resulting offsets into accelerometer and gyro bias registers.
+/*
+// Function which accumulates gyro and accelerometer data after device initialization. It calculates the average
+// of the at-rest readings and then loads the resulting offsets into accelerometer and gyro bias registers.
 void calibrateMPU9150(float * dest1, float * dest2) {  
     uint8_t data[12]; // data array to hold accelerometer and gyro x, y, z, data
     uint16_t ii, packet_count, fifo_count;
@@ -305,7 +314,9 @@ void calibrateMPU9150(float * dest1, float * dest2) {
     writeByte(MPU9150_ADDRESS, YG_OFFS_USRL, data[3]);
     writeByte(MPU9150_ADDRESS, ZG_OFFS_USRH, data[4]);
     writeByte(MPU9150_ADDRESS, ZG_OFFS_USRL, data[5]);
-
+    Serial.println(gyro_bias[0]);
+    Serial.println(gyro_bias[1]);
+    Serial.println(gyro_bias[2]);
     // Output scaled gyro biases for display in the main program
     dest1[0] = (float) gyro_bias[0]/(float) gyrosensitivity;  
     dest1[1] = (float) gyro_bias[1]/(float) gyrosensitivity;
@@ -354,7 +365,9 @@ void calibrateMPU9150(float * dest1, float * dest2) {
     writeByte(MPU9150_ADDRESS, YA_OFFSET_L_TC, data[3]);
     writeByte(MPU9150_ADDRESS, ZA_OFFSET_H, data[4]);
     writeByte(MPU9150_ADDRESS, ZA_OFFSET_L_TC, data[5]);
-
+    Serial.println(accel_bias_reg[0]);
+    Serial.println(accel_bias_reg[1]);
+    Serial.println(accel_bias_reg[2]);
     // Output scaled accelerometer biases for display in the main program
     dest2[0] = (float)accel_bias[0]/(float)accelsensitivity; 
     dest2[1] = (float)accel_bias[1]/(float)accelsensitivity;
@@ -405,7 +418,7 @@ void MPU6050SelfTest(float * destination) {
     }
 
 }
-
+*/
         // Wire.h read and write protocols
 void writeByte(uint8_t address, uint8_t subAddress, uint8_t data) {
     Wire.beginTransmission(address);  // Initialize the Tx buffer

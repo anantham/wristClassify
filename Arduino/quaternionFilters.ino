@@ -4,38 +4,70 @@
 // device orientation -- which can be converted to yaw, pitch, and roll. Useful for stabilizing quadcopters, etc.
 // The performance of the orientation filter is at least as good as conventional Kalman-based filtering algorithms
 // but is much less computationally intensive---it can be performed on a 3.3 V Pro Mini operating at 8 MHz!
+
+float q1, q2, q3, q4;   // short name local variable for readability
+float norm;
+float qDot1, qDot2, qDot3, qDot4;
+float s1, s2, s3, s4;
+float hx, hy, _2bx, _2bz;
+float _2q1mx;
+float _2q1my;
+float _2q1mz;
+float _2q2mx;
+float _4bx;
+float _4bz;
+float _2q1;
+float _2q2;
+float _2q3;
+float _2q4;
+float _2q1q3;
+float _2q3q4;
+
+
+float bx, bz;
+float vx, vy, vz, wx, wy, wz;
+float ex, ey, ez;
+float pa, pb, pc;
+
+
+// Auxiliary variables to avoid repeated arithmetic
+float q1q1;
+float q1q2;
+float q1q3;
+float q1q4;
+float q2q2;
+float q2q3;
+float q2q4;
+float q3q3;
+float q3q4;
+float q4q4; 
+
 void MadgwickQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz) {
-      float q1 = q[0], q2 = q[1], q3 = q[2], q4 = q[3];   // short name local variable for readability
-      float norm;
-      float hx, hy, _2bx, _2bz;
-      float s1, s2, s3, s4;
-      float qDot1, qDot2, qDot3, qDot4;
+      q1 = q[0];
+      q2 = q[1];
+      q3 = q[2];
+      q4 = q[3];   // short name local variable for readability
 
       //float gerrx, gerry, gerrz, gbiasx, gbiasy, gbiasz;        
       // gyro bias error
       // Auxiliary variables to avoid repeated arithmetic
-      float _2q1mx;
-      float _2q1my;
-      float _2q1mz;
-      float _2q2mx;
-      float _4bx;
-      float _4bz;
-      float _2q1 = 2.0f * q1;
-      float _2q2 = 2.0f * q2;
-      float _2q3 = 2.0f * q3;
-      float _2q4 = 2.0f * q4;
-      float _2q1q3 = 2.0f * q1 * q3;
-      float _2q3q4 = 2.0f * q3 * q4;
-      float q1q1 = q1 * q1;
-      float q1q2 = q1 * q2;
-      float q1q3 = q1 * q3;
-      float q1q4 = q1 * q4;
-      float q2q2 = q2 * q2;
-      float q2q3 = q2 * q3;
-      float q2q4 = q2 * q4;
-      float q3q3 = q3 * q3;
-      float q3q4 = q3 * q4;
-      float q4q4 = q4 * q4;
+
+      _2q1 = 2.0f * q1;
+      _2q2 = 2.0f * q2;
+      _2q3 = 2.0f * q3;
+      _2q4 = 2.0f * q4;
+      _2q1q3 = 2.0f * q1 * q3;
+      _2q3q4 = 2.0f * q3 * q4;
+      q1q1 = q1 * q1;
+      q1q2 = q1 * q2;
+      q1q3 = q1 * q3;
+      q1q4 = q1 * q4;
+      q2q2 = q2 * q2;
+      q2q3 = q2 * q3;
+      q2q4 = q2 * q4;
+      q3q3 = q3 * q3;
+      q3q4 = q3 * q4;
+      q4q4 = q4 * q4;
 
       // Normalise accelerometer measurement
       norm = sqrt(ax * ax + ay * ay + az * az);
@@ -118,24 +150,22 @@ void MadgwickQuaternionUpdate(float ax, float ay, float az, float gx, float gy, 
       // Similar to Madgwick scheme but uses proportional and integral filtering on the error between estimated reference vectors and
       // measured ones. 
 void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz) {
-      float q1 = q[0], q2 = q[1], q3 = q[2], q4 = q[3];   // short name local variable for readability
-      float norm;
-      float hx, hy, bx, bz;
-      float vx, vy, vz, wx, wy, wz;
-      float ex, ey, ez;
-      float pa, pb, pc;
+      q1 = q[0];
+      q2 = q[1];
+      q3 = q[2];
+      q4 = q[3];   // short name local variable for readability
 
       // Auxiliary variables to avoid repeated arithmetic
-      float q1q1 = q1 * q1;
-      float q1q2 = q1 * q2;
-      float q1q3 = q1 * q3;
-      float q1q4 = q1 * q4;
-      float q2q2 = q2 * q2;
-      float q2q3 = q2 * q3;
-      float q2q4 = q2 * q4;
-      float q3q3 = q3 * q3;
-      float q3q4 = q3 * q4;
-      float q4q4 = q4 * q4;   
+      q1q1 = q1 * q1;
+      q1q2 = q1 * q2;
+      q1q3 = q1 * q3;
+      q1q4 = q1 * q4;
+      q2q2 = q2 * q2;
+      q2q3 = q2 * q3;
+      q2q4 = q2 * q4;
+      q3q3 = q3 * q3;
+      q3q4 = q3 * q4;
+      q4q4 = q4 * q4;   
 
       // Normalise accelerometer measurement
       norm = sqrt(ax * ax + ay * ay + az * az);
@@ -205,8 +235,8 @@ void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy, fl
       q[3] = q4 * norm;
 }
 
-void complementaryFilterUpdate(float *dest, float alpha) {
-      dest[0] = (alpha)*dest[0] + (1-alpha)*dest[0];
-      dest[1] = (alpha)*dest[1] + (1-alpha)*dest[1];
-      dest[2] = (alpha)*dest[2] + (1-alpha)*dest[2];
+void complimentaryFilterUpdate(VectorFloat * curr, VectorFloat * old, float alpha) {
+      curr->x = (alpha)*old->x + (1-alpha)*curr->x;
+      curr->y = (alpha)*old->y + (1-alpha)*curr->y;
+      curr->z = (alpha)*old->z + (1-alpha)*curr->z;
 }
