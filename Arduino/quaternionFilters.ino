@@ -168,17 +168,17 @@ void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy, fl
       q4q4 = q4 * q4;   
 
       // Normalise accelerometer measurement
-      norm = sqrt(ax * ax + ay * ay + az * az);
-      if (norm == 0.0f) return; // handle NaN
-      norm = 1.0f / norm;        // use reciprocal for division
+      norm = invSqrt(ax * ax + ay * ay + az * az);
+      //if (norm == 0.0f) return; // handle NaN
+      //norm = 1.0f / norm;        // use reciprocal for division
       ax *= norm;
       ay *= norm;
       az *= norm;
 
       // Normalise magnetometer measurement
-      norm = sqrt(mx * mx + my * my + mz * mz);
-      if (norm == 0.0f) return; // handle NaN
-      norm = 1.0f / norm;        // use reciprocal for division
+      norm = invSqrt(mx * mx + my * my + mz * mz);
+      //if (norm == 0.0f) return; // handle NaN
+      //norm = 1.0f / norm;        // use reciprocal for division
       mx *= norm;
       my *= norm;
       mz *= norm;
@@ -227,8 +227,8 @@ void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy, fl
       q4 = pc + (q1 * gz + pa * gy - pb * gx) * (0.5f * deltat);
 
       // Normalise quaternion
-      norm = sqrt(q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4);
-      norm = 1.0f / norm;
+      norm = invSqrt(q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4);
+      //norm = 1.0f / norm;
       q[0] = q1 * norm;
       q[1] = q2 * norm;
       q[2] = q3 * norm;
@@ -239,4 +239,16 @@ void complimentaryFilterUpdate(VectorFloat * curr, VectorFloat * old, float alph
       curr->x = (alpha)*old->x + (1-alpha)*curr->x;
       curr->y = (alpha)*old->y + (1-alpha)*curr->y;
       curr->z = (alpha)*old->z + (1-alpha)*curr->z;
+}
+
+// Fast inverse square-root
+// See: http://en.wikipedia.org/wiki/Fast_inverse_square_root
+float invSqrt(float x) {
+      float halfx = 0.5f * x;
+      float y = x;
+      long i = *(long*)&y;
+      i = 0x5f3759df - (i>>1);
+      y = *(float*)&i;
+      y = y * (1.5f - (halfx * y * y));
+      return y;
 }

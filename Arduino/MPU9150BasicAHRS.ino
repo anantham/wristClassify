@@ -133,7 +133,10 @@ uint32_t Now = 0;        // used to calculate integration interval
 float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
 float eInt[3] = {0.0f, 0.0f, 0.0f};       // vector to hold integral error for Mahony method
 float a31, a32, a33;
-
+const char * SSID = "";
+const char * Password = "";
+const char * host = "";
+int port = 0;
 VectorInt16 gyroCount; 
 VectorInt16 accelCount;
 VectorFloat accel, gyro, mag, realAccel, worldAccel, oldWorldAccel;
